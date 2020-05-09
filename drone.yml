@@ -1,0 +1,39 @@
+pipeline:
+  # Fetch folders from distributed cache
+  sftp_cache_restore:
+    image: plugins/sftp-cache
+    restore: true
+    mount:
+      - /drone/.ivy2
+      - /drone/.coursier-cache
+      - /drone/.sbt
+      - /drone/.git
+
+  # Build your project, executes tests, releases docs...
+  build:
+    image: scalaplatform/scala:0.5
+    pull: true
+    volumes:
+      - /platform:/keys
+    commands:
+      - ${COMMAND #1}
+      - ${COMMAND #2}
+      
+  # Release stable whenever a tag is pushed to `platform-release`
+  release-stable:
+    image: scalaplatform/scala:0.5
+    commands:
+      - sbt releaseStable
+    when:
+      branch: platform-release
+      event: tag
+
+  # Save folders in distributed cache
+  sftp_cache_rebuild:
+    image: plugins/sftp-cache
+    rebuild: true
+    mount:
+      - /drone/.ivy2
+      - /drone/.coursier-cache
+      - /drone/.sbt
+      - /drone/.git

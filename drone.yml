@@ -16,8 +16,7 @@ pipeline:
     volumes:
       - /platform:/keys
     commands:
-      - ${COMMAND #1}
-      - ${COMMAND #2}
+      - sbt clean test docs/publish
       
   # Release stable whenever a tag is pushed to `platform-release`
   release-stable:
